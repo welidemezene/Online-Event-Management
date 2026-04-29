@@ -1,0 +1,315 @@
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { colors, spacing, typography, categoryConfig, radius } from '../theme';
+import { useEvents } from '../context/EventContext';
+import { useAuth } from '../context/AuthContext';
+import CountdownTimer from '../components/CountdownTimer';
+
+export default function EventDetailScreen() {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { eventId } = route.params;
+  
+  const { events, bookings, bookEvent } = useEvents();
+  const { user } = useAuth();
+  
+  const event = events.find(e => e.eventId === eventId);
+  const myBooking = bookings.find(b => b.eventId === eventId && b.userId === user?.uid);
+  
+  if (!event) return null;
+  
+  const cat = categoryConfig[event.category] || categoryConfig.tech;
+  const percentFull = Math.min(100, Math.round((event.currentBookings / event.capacity) * 100));
+  const isFull = percentFull >= 100;
+
+  const handleBook = async () => {
+    if (!user) {
+      navigation.navigate('Auth');
+      return;
+    }
+    
+    try {
+      await bookEvent(user.uid, eventId);
+      Alert.alert(
+        "Booking Confirmed! 🎉",
+        "Your ticket has been added to My Tickets.",
+        [{ text: "View Ticket", onPress: () => navigation.navigate('TicketsTab') }]
+      );
+    } catch (error) {
+      Alert.alert("Booking Failed", error.message);
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
+        
+        {/* Hero Image / Placeholder */}
+        <View style={[styles.heroImage, { backgroundColor: cat.bg }]}>
+          <SafeAreaView edges={['top']} style={styles.headerSafeArea}>
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+            >
+              <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
+            </TouchableOpacity>
+          </SafeAreaView>
+          <Text style={styles.heroEmoji}>{event.emoji}</Text>
+        </View>
+
+        <View style={styles.content}>
+          <View style={styles.metaRow}>
+            <View style={[styles.badge, { backgroundColor: cat.bg }]}>
+              <Text style={[styles.badgeText, { color: cat.color }]}>{cat.label}</Text>
+            </View>
+            {isFull && <Text style={styles.soldOut}>🔴 SOLD OUT</Text>}
+          </View>
+
+          <Text style={styles.title}>{event.title}</Text>
+          
+          <View style={styles.infoCardsRow}>
+            <View style={styles.infoCard}>
+              <Ionicons name="calendar-outline" size={20} color={colors.primaryLight} />
+              <Text style={styles.infoCardLabel}>Date</Text>
+              <Text style={styles.infoCardValue}>{new Date(event.date).toLocaleDateString()}</Text>
+            </View>
+            <View style={styles.infoCard}>
+              <Ionicons name="location-outline" size={20} color={colors.primaryLight} />
+              <Text style={styles.infoCardLabel}>Location</Text>
+              <Text style={styles.infoCardValue} numberOfLines={1}>{event.location}</Text>
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Countdown</Text>
+            <CountdownTimer targetDate={event.date} />
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>About This Event</Text>
+            <Text style={styles.description}>{event.description}</Text>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Capacity</Text>
+            <View style={styles.capacityBox}>
+              <View style={styles.capacityRow}>
+                <Text style={styles.capacityText}>
+                  <Text style={{ fontWeight: '700', color: colors.textPrimary }}>{event.currentBookings}</Text> / {event.capacity} registered
+                </Text>
+                <Text style={styles.capacityPercent}>{percentFull}%</Text>
+              </View>
+              <View style={styles.capacityBarBg}>
+                <View style={[
+                  styles.capacityBarFill, 
+                  { width: `${percentFull}%` },
+                  percentFull > 80 && { backgroundColor: colors.warning },
+                  isFull && { backgroundColor: colors.danger }
+                ]} />
+              </View>
+            </View>
+          </View>
+
+        </View>
+      </ScrollView>
+
+      {/* Bottom Booking Bar */}
+      <View style={styles.bottomBar}>
+        <View style={styles.priceContainer}>
+          <Text style={styles.priceLabel}>Price</Text>
+          <Text style={[styles.priceValue, event.price === 0 && { color: colors.success }]}>
+            {event.price === 0 ? 'FREE' : `ETB ${event.price}`}
+          </Text>
+        </View>
+        
+        {myBooking ? (
+          <TouchableOpacity 
+            style={[styles.bookBtn, { backgroundColor: colors.bgSurface, borderColor: colors.primary, borderWidth: 1 }]}
+            onPress={() => navigation.navigate('TicketsTab')}
+          >
+            <Text style={[styles.bookBtnText, { color: colors.primaryLight }]}>View Ticket</Text>
+          </TouchableOpacity>
+        ) : isFull ? (
+          <TouchableOpacity style={[styles.bookBtn, { backgroundColor: colors.bgSurface, opacity: 0.5 }]} disabled>
+            <Text style={styles.bookBtnText}>Fully Booked</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.bookBtn} onPress={handleBook}>
+            <Text style={styles.bookBtnText}>{user ? 'Book Now' : 'Login to Book'}</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.bgBase,
+  },
+  heroImage: {
+    height: 300,
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  headerSafeArea: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: spacing.md,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: spacing.sm,
+  },
+  heroEmoji: {
+    fontSize: 100,
+  },
+  content: {
+    padding: spacing.lg,
+    marginTop: -30,
+    backgroundColor: colors.bgBase,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  badge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radius.full,
+  },
+  badgeText: {
+    ...typography.caption,
+  },
+  soldOut: {
+    ...typography.caption,
+    color: colors.danger,
+    fontWeight: '800',
+  },
+  title: {
+    ...typography.h1,
+    color: colors.textPrimary,
+    marginBottom: spacing.lg,
+  },
+  infoCardsRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    marginBottom: spacing.xl,
+  },
+  infoCard: {
+    flex: 1,
+    backgroundColor: colors.bgSurface,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+  },
+  infoCardLabel: {
+    fontSize: 11,
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  infoCardValue: {
+    ...typography.bodySmall,
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
+  section: {
+    marginBottom: spacing.xl,
+  },
+  sectionTitle: {
+    ...typography.h3,
+    color: colors.textPrimary,
+    marginBottom: spacing.md,
+  },
+  description: {
+    ...typography.body,
+    color: colors.textSecondary,
+  },
+  capacityBox: {
+    backgroundColor: colors.bgCard,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  capacityRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  capacityText: {
+    ...typography.bodySmall,
+    color: colors.textSecondary,
+  },
+  capacityPercent: {
+    ...typography.bodySmall,
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
+  capacityBarBg: {
+    height: 8,
+    backgroundColor: colors.bgSurface,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  capacityBarFill: {
+    height: '100%',
+    backgroundColor: colors.primary,
+    borderRadius: 4,
+  },
+  bottomBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(8, 8, 15, 0.95)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: spacing.lg,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  priceContainer: {
+    flex: 1,
+  },
+  priceLabel: {
+    fontSize: 12,
+    color: colors.textMuted,
+    textTransform: 'uppercase',
+    marginBottom: 2,
+  },
+  priceValue: {
+    ...typography.h2,
+    color: colors.textPrimary,
+  },
+  bookBtn: {
+    backgroundColor: colors.primary,
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    borderRadius: radius.full,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  bookBtnText: {
+    ...typography.h4,
+    color: 'white',
+  },
+});
