@@ -5,11 +5,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { colors, spacing, typography, radius } from '../theme';
 import { useEvents } from '../context/EventContext';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 
 export default function AdminDashboard() {
   const navigation = useNavigation();
-  const { events, bookings, deleteEvent } = useEvents();
+  const { events, bookings, deleteEvent, markAttended } = useEvents();
   const [activeTab, setActiveTab] = useState('events');
+  const [permission, requestPermission] = useCameraPermissions();
+  const [scanned, setScanned] = useState(false);
 
   const totalRevenue = bookings.reduce((sum, b) => {
     const ev = events.find(e => e.eventId === b.eventId);
@@ -25,6 +28,45 @@ export default function AdminDashboard() {
         { text: "Delete", style: "destructive", onPress: () => deleteEvent(eventId) }
       ]
     );
+  };
+
+  const handleBarCodeScanned = ({ type, data }) => {
+    setScanned(true);
+    try {
+      const payload = JSON.parse(data);
+      if (!payload.bookingId) throw new Error("Invalid QR code format");
+
+      const booking = bookings.find(b => b.bookingId === payload.bookingId);
+      if (!booking) {
+        Alert.alert("Error", "Booking not found in the database.", [{ text: "OK", onPress: () => setScanned(false) }]);
+        return;
+      }
+
+      if (booking.attended) {
+        Alert.alert("Warning", "This ticket has already been used!", [{ text: "OK", onPress: () => setScanned(false) }]);
+        return;
+      }
+
+      const event = events.find(e => e.eventId === booking.eventId);
+      
+      Alert.alert(
+        "Ticket Valid!",
+        `Event: ${event?.title}\nUser ID: ${booking.userId}`,
+        [
+          { text: "Cancel", style: "cancel", onPress: () => setScanned(false) },
+          { 
+            text: "Check In", 
+            onPress: async () => {
+              await markAttended(booking.bookingId);
+              Alert.alert("Success", "Attendee checked in.");
+              setScanned(false);
+            }
+          }
+        ]
+      );
+    } catch (e) {
+      Alert.alert("Error", "Unrecognized QR code.", [{ text: "OK", onPress: () => setScanned(false) }]);
+    }
   };
 
   const renderStats = () => (
@@ -147,13 +189,36 @@ export default function AdminDashboard() {
           {activeTab === 'events' && renderEventsTab()}
           {activeTab === 'bookings' && renderBookingsTab()}
           {activeTab === 'scanner' && (
-             <View style={styles.scannerBox}>
-               <Ionicons name="qr-code-outline" size={64} color={colors.primaryLight} style={{ marginBottom: 16 }} />
-               <Text style={styles.scannerTitle}>QR Scanner</Text>
-               <Text style={styles.scannerDesc}>Use your camera to verify tickets at the venue entrance.</Text>
-               <TouchableOpacity style={styles.addBtn} onPress={() => Alert.alert("Scanner", "Camera requires physical device.")}>
-                 <Text style={styles.addBtnText}>Open Camera</Text>
-               </TouchableOpacity>
+             <View style={styles.scannerContainer}>
+               {!permission ? (
+                 <View style={styles.scannerBox}><Text>Requesting permission...</Text></View>
+               ) : !permission.granted ? (
+                 <View style={styles.scannerBox}>
+                   <Text style={styles.scannerDesc}>We need your permission to show the camera</Text>
+                   <TouchableOpacity style={styles.addBtn} onPress={requestPermission}>
+                     <Text style={styles.addBtnText}>Grant Permission</Text>
+                   </TouchableOpacity>
+                 </View>
+               ) : (
+                 <View style={styles.cameraWrapper}>
+                   <CameraView
+                     style={StyleSheet.absoluteFillObject}
+                     facing="back"
+                     onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+                     barcodeScannerSettings={{
+                       barcodeTypes: ["qr"],
+                     }}
+                   />
+                   <View style={styles.overlay}>
+                     <View style={styles.scanTarget} />
+                   </View>
+                   {scanned && (
+                     <TouchableOpacity style={styles.rescanBtn} onPress={() => setScanned(false)}>
+                       <Text style={styles.rescanBtnText}>Tap to Scan Again</Text>
+                     </TouchableOpacity>
+                   )}
+                 </View>
+               )}
              </View>
           )}
         </View>
@@ -347,5 +412,42 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
     marginBottom: spacing.xl,
+  },
+  scannerContainer: {
+    height: 400,
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+    marginTop: spacing.md,
+  },
+  cameraWrapper: {
+    flex: 1,
+    position: 'relative',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  scanTarget: {
+    width: 250,
+    height: 250,
+    borderWidth: 2,
+    borderColor: colors.primary,
+    backgroundColor: 'transparent',
+  },
+  rescanBtn: {
+    position: 'absolute',
+    bottom: 30,
+    alignSelf: 'center',
+    backgroundColor: colors.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: radius.full,
+  },
+  rescanBtnText: {
+    ...typography.body,
+    color: 'white',
+    fontWeight: '700',
   },
 });
