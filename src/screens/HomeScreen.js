@@ -26,7 +26,7 @@ export default function HomeScreen() {
             <Text style={styles.greeting}>Hello, {user?.name.split(' ')[0]} 👋</Text>
             <Text style={styles.tagline}>Ready for your next event?</Text>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.avatar}>
+          <TouchableOpacity onPress={() => navigation.navigate('ProfileTab')} style={styles.avatar}>
             <Text style={styles.avatarText}>{user?.name.charAt(0)}</Text>
           </TouchableOpacity>
         </View>

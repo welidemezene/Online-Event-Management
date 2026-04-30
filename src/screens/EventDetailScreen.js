@@ -35,7 +35,7 @@ export default function EventDetailScreen() {
       Alert.alert(
         "Booking Confirmed! 🎉",
         "Your ticket has been added to My Tickets.",
-        [{ text: "View Ticket", onPress: () => navigation.navigate('TicketsTab') }]
+        [{ text: "View Ticket", onPress: () => navigation.navigate('MainTabs', { screen: 'TicketsTab' }) }]
       );
     } catch (error) {
       Alert.alert("Booking Failed", error.message);
@@ -136,7 +136,7 @@ export default function EventDetailScreen() {
         {myBooking ? (
           <TouchableOpacity 
             style={[styles.bookBtn, { backgroundColor: colors.bgSurface, borderColor: colors.primary, borderWidth: 1 }]}
-            onPress={() => navigation.navigate('TicketsTab')}
+            onPress={() => navigation.navigate('MainTabs', { screen: 'TicketsTab' })}
           >
             <Text style={[styles.bookBtnText, { color: colors.primaryLight }]}>View Ticket</Text>
           </TouchableOpacity>
