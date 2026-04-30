@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { colors, radius, shadows, typography, spacing, categoryConfig } from '../theme';
 
 export default function EventCard({ event, onPress }) {
@@ -12,9 +12,13 @@ export default function EventCard({ event, onPress }) {
       onPress={onPress}
       activeOpacity={0.8}
     >
-      <View style={[styles.imagePlaceholder, { backgroundColor: cat.bg }]}>
-        <Text style={styles.emoji}>{event.emoji || '📅'}</Text>
-      </View>
+      {event.imageUrl ? (
+        <Image source={{ uri: event.imageUrl }} style={styles.imagePlaceholder} resizeMode="cover" />
+      ) : (
+        <View style={[styles.imagePlaceholder, { backgroundColor: cat.bg }]}>
+          <Text style={styles.emoji}>{event.emoji || '📅'}</Text>
+        </View>
+      )}
       
       <View style={styles.body}>
         <View style={styles.metaRow}>

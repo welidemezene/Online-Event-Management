@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -47,17 +47,26 @@ export default function EventDetailScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
         
         {/* Hero Image / Placeholder */}
-        <View style={[styles.heroImage, { backgroundColor: cat.bg }]}>
-          <SafeAreaView edges={['top']} style={styles.headerSafeArea}>
-            <TouchableOpacity 
-              style={styles.backButton}
-              onPress={() => navigation.goBack()}
-            >
-              <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
-            </TouchableOpacity>
-          </SafeAreaView>
-          <Text style={styles.heroEmoji}>{event.emoji}</Text>
-        </View>
+        {event.imageUrl ? (
+          <View style={styles.heroImageContainer}>
+            <Image source={{ uri: event.imageUrl }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
+            <View style={styles.heroOverlay} />
+            <SafeAreaView edges={['top']} style={styles.headerSafeArea}>
+              <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                <Ionicons name="arrow-back" size={24} color="white" />
+              </TouchableOpacity>
+            </SafeAreaView>
+          </View>
+        ) : (
+          <View style={[styles.heroImageContainer, { backgroundColor: cat.bg }]}>
+            <SafeAreaView edges={['top']} style={styles.headerSafeArea}>
+              <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
+              </TouchableOpacity>
+            </SafeAreaView>
+            <Text style={styles.heroEmoji}>{event.emoji}</Text>
+          </View>
+        )}
 
         <View style={styles.content}>
           <View style={styles.metaRow}>
@@ -150,11 +159,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.bgBase,
   },
-  heroImage: {
+  heroImageContainer: {
     height: 300,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+  },
+  heroOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.3)',
   },
   headerSafeArea: {
     position: 'absolute',
