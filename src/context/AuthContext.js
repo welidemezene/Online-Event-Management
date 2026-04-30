@@ -1,5 +1,13 @@
 import { createContext, useState, useEffect, useContext } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut,
+  updateProfile,
+} from 'firebase/auth';
+import { ref, set, get } from 'firebase/database';
+import { auth, database } from '../config/firebase';
 
 export const AuthContext = createContext();
 
@@ -8,52 +16,67 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in
-    const checkUser = async () => {
-      try {
-        const storedUser = await AsyncStorage.getItem('es_user');
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
+    // Listen for Firebase auth state changes
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Fetch extra profile data from database (name, role)
+        try {
+          const snapshot = await get(ref(database, `users/${firebaseUser.uid}`));
+          if (snapshot.exists()) {
+            setUser({ uid: firebaseUser.uid, email: firebaseUser.email, ...snapshot.val() });
+          } else {
+            setUser({ uid: firebaseUser.uid, email: firebaseUser.email, name: firebaseUser.displayName || 'User', role: 'user' });
+          }
+        } catch (e) {
+          setUser({ uid: firebaseUser.uid, email: firebaseUser.email, name: 'User', role: 'user' });
         }
-      } catch (error) {
-        console.error("Error loading user", error);
-      } finally {
-        setLoading(false);
+      } else {
+        setUser(null);
       }
-    };
-    checkUser();
+      setLoading(false);
+    });
+
+    return unsubscribe;
   }, []);
 
   const login = async (email, password) => {
-    // MOCK LOGIN FOR NOW
-    if (email === 'admin@eventsphere.com') {
-      const adminUser = { uid: 'admin1', name: 'Admin User', email, role: 'admin' };
-      setUser(adminUser);
-      await AsyncStorage.setItem('es_user', JSON.stringify(adminUser));
-      return adminUser;
-    }
-    const regularUser = { uid: 'user1', name: 'Test User', email, role: 'user' };
-    setUser(regularUser);
-    await AsyncStorage.setItem('es_user', JSON.stringify(regularUser));
-    return regularUser;
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    const snapshot = await get(ref(database, `users/${result.user.uid}`));
+    const profile = snapshot.exists() ? snapshot.val() : {};
+    return { uid: result.user.uid, email: result.user.email, ...profile };
   };
 
   const register = async (name, email, password) => {
-    // MOCK REGISTER
-    const newUser = { uid: 'user' + Date.now(), name, email, role: 'user' };
-    setUser(newUser);
-    await AsyncStorage.setItem('es_user', JSON.stringify(newUser));
-    return newUser;
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+
+    // Update Firebase Auth display name
+    await updateProfile(result.user, { displayName: name });
+
+    // Determine role: first user gets admin, everyone else is regular user
+    const usersSnapshot = await get(ref(database, 'users'));
+    const isFirstUser = !usersSnapshot.exists();
+    const role = isFirstUser ? 'admin' : 'user';
+
+    // Save profile to Realtime Database
+    const profile = {
+      name,
+      email,
+      role,
+      createdAt: new Date().toISOString(),
+    };
+    await set(ref(database, `users/${result.user.uid}`), profile);
+
+    return { uid: result.user.uid, ...profile };
   };
 
   const logout = async () => {
+    await signOut(auth);
     setUser(null);
-    await AsyncStorage.removeItem('es_user');
   };
 
   return (
     <AuthContext.Provider value={{ user, loading, login, register, logout }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
