@@ -51,7 +51,7 @@ export default function AdminDashboard() {
     <View>
       <TouchableOpacity 
         style={styles.addBtn}
-        // onPress={() => navigation.navigate('ManageEvent')}
+        onPress={() => navigation.navigate('ManageEvent')}
       >
         <Ionicons name="add" size={20} color="white" />
         <Text style={styles.addBtnText}>Add New Event</Text>

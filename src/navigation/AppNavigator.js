@@ -11,6 +11,7 @@ import MyTicketsScreen from '../screens/MyTicketsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import AuthScreen from '../screens/AuthScreen';
 import AdminDashboard from '../screens/AdminDashboard';
+import ManageEventScreen from '../screens/ManageEventScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -62,6 +63,7 @@ export default function AppNavigator() {
       <Stack.Screen name="EventsList" component={EventsScreen} />
       <Stack.Screen name="Auth" component={AuthScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="Admin" component={AdminDashboard} />
+      <Stack.Screen name="ManageEvent" component={ManageEventScreen} options={{ presentation: 'modal' }} />
     </Stack.Navigator>
   );
 }
