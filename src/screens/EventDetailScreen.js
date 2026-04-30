@@ -30,11 +30,22 @@ export default function EventDetailScreen() {
       return;
     }
     
+    // If the event is paid, go to the simulated payment gateway
+    if (event.price > 0) {
+      navigation.navigate('Checkout', { 
+        eventId: event.eventId,
+        eventTitle: event.title,
+        price: event.price
+      });
+      return;
+    }
+    
+    // If it's free, book it instantly
     try {
       await bookEvent(user.uid, eventId);
       Alert.alert(
         "Booking Confirmed! 🎉",
-        "Your ticket has been added to My Tickets.",
+        "Your free ticket has been added to My Tickets.",
         [{ text: "View Ticket", onPress: () => navigation.navigate('MainTabs', { screen: 'TicketsTab' }) }]
       );
     } catch (error) {
