@@ -35,3 +35,8 @@ The application interfaces directly with the native device camera using the Expo
 **Backend Infrastructure:**
 * Firebase Realtime Database (NoSQL Document Store)
 * Firebase Authentication (Persistent Sessions via AsyncStorage)
+
+**UI/UX Design System:**
+* Custom StyleSheet Theme Engine (colors, spacing, typography)
+* Expo Linear Gradient for premium hero sections
+* React Native Vector Icons (Ionicons) for consistent symbology
