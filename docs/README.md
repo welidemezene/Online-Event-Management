@@ -21,3 +21,6 @@ Physical tickets are obsolete. EventSphere automatically generates a highly secu
 
 ### 5. Advanced Admin Dashboard & Analytics
 Event organizers have full CRUD (Create, Read, Update, Delete) capabilities. They can instantly publish new events with high-resolution network images, set pricing, and monitor real-time revenue analytics dynamically calculated from the live bookings database.
+
+### 6. Native Hardware Integration
+The application interfaces directly with the native device camera using the Expo Camera API. Admins can scan attendee QR tickets at the door. The system instantly parses the JSON payload, verifies the ticket ID against the database, and marks the user as 'Attended' to prevent duplicate entry fraud.
