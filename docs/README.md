@@ -9,3 +9,6 @@ The traditional event management industry relies heavily on fragmented systems, 
 
 ### 1. Secure Role-Based Authentication
 EventSphere implements a robust email/password login system powered by Firebase Authentication. It features strict role-based access control, ensuring that standard users cannot access administrative capabilities. The first user to register on a fresh database is automatically granted 'Admin' privileges.
+
+### 2. Real-time Event Discovery Engine
+Attendees can effortlessly browse upcoming events. The system features dynamic category filtering (e.g., Tech, Music, Sports) and displays live availability metrics. As tickets are booked, the UI updates the remaining capacity across all devices globally in real-time.
