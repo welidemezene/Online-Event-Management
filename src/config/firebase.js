@@ -23,7 +23,7 @@ export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage),
 });
 
-// Initialize Realtime Database
+// Initialize Firebase Realtime Database service
 export const database = getDatabase(app);
 
 // Export Firebase app instance
