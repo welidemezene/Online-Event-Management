@@ -18,3 +18,6 @@ One of the most complex engineering challenges solved in this application is rac
 
 ### 4. Digital QR Ticketing
 Physical tickets are obsolete. EventSphere automatically generates a highly secure, unique QR code payload for every successful booking. These digital tickets are stored locally on the user's device for fast retrieval at the venue.
+
+### 5. Advanced Admin Dashboard & Analytics
+Event organizers have full CRUD (Create, Read, Update, Delete) capabilities. They can instantly publish new events with high-resolution network images, set pricing, and monitor real-time revenue analytics dynamically calculated from the live bookings database.
