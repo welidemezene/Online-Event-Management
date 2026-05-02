@@ -12,3 +12,6 @@ EventSphere implements a robust email/password login system powered by Firebase 
 
 ### 2. Real-time Event Discovery Engine
 Attendees can effortlessly browse upcoming events. The system features dynamic category filtering (e.g., Tech, Music, Sports) and displays live availability metrics. As tickets are booked, the UI updates the remaining capacity across all devices globally in real-time.
+
+### 3. Atomic Booking & Concurrency Control
+One of the most complex engineering challenges solved in this application is race-condition prevention. Using Firebase Transactions, the booking engine guarantees that events are never overbooked, even if thousands of users attempt to purchase the final ticket at the exact same millisecond.
