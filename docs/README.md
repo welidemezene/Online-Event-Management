@@ -24,3 +24,5 @@ Event organizers have full CRUD (Create, Read, Update, Delete) capabilities. The
 
 ### 6. Native Hardware Integration
 The application interfaces directly with the native device camera using the Expo Camera API. Admins can scan attendee QR tickets at the door. The system instantly parses the JSON payload, verifies the ticket ID against the database, and marks the user as 'Attended' to prevent duplicate entry fraud.
+
+## 🛠️ Comprehensive Technology Stack
