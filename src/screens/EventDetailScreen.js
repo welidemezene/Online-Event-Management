@@ -1,7 +1,8 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, spacing, typography, categoryConfig, radius } from '../theme';
 import { useEvents } from '../context/EventContext';
 import { useAuth } from '../context/AuthContext';
@@ -17,6 +18,7 @@ export default function EventDetailScreen() {
   
   const event = events.find(e => e.eventId === eventId);
   const myBooking = bookings.find(b => b.eventId === eventId && b.userId === user?.uid);
+  const insets = useSafeAreaInsets();
   
   if (!event) return null;
   
@@ -61,7 +63,10 @@ export default function EventDetailScreen() {
         {event.imageUrl ? (
           <View style={styles.heroImageContainer}>
             <Image source={{ uri: event.imageUrl }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
-            <View style={styles.heroOverlay} />
+            <LinearGradient
+              colors={['rgba(0,0,0,0.5)', 'transparent', colors.bgBase]}
+              style={styles.heroOverlay}
+            />
             <SafeAreaView edges={['top']} style={styles.headerSafeArea}>
               <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                 <Ionicons name="arrow-back" size={24} color="white" />
@@ -136,7 +141,7 @@ export default function EventDetailScreen() {
       </ScrollView>
 
       {/* Bottom Booking Bar */}
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
         <View style={styles.priceContainer}>
           <Text style={styles.priceLabel}>Price</Text>
           <Text style={[styles.priceValue, event.price === 0 && { color: colors.success }]}>
@@ -157,7 +162,14 @@ export default function EventDetailScreen() {
           </TouchableOpacity>
         ) : (
           <TouchableOpacity style={styles.bookBtn} onPress={handleBook}>
-            <Text style={styles.bookBtnText}>{user ? 'Book Now' : 'Login to Book'}</Text>
+            <LinearGradient
+              colors={colors.gradientPrimary}
+              style={StyleSheet.absoluteFillObject}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ borderRadius: radius.full, ...StyleSheet.absoluteFillObject }}
+            />
+            <Text style={[styles.bookBtnText, { zIndex: 1 }]}>{user ? 'Book Now' : 'Login to Book'}</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -226,9 +238,11 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   title: {
-    ...typography.h1,
+    fontSize: 28,
+    fontWeight: '800',
     color: colors.textPrimary,
     marginBottom: spacing.lg,
+    lineHeight: 34,
   },
   infoCardsRow: {
     flexDirection: 'row',
@@ -304,12 +318,12 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(8, 8, 15, 0.95)',
+    backgroundColor: 'rgba(17, 17, 27, 0.95)',
     flexDirection: 'row',
     alignItems: 'center',
     padding: spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: 'rgba(255,255,255,0.05)',
   },
   priceContainer: {
     flex: 1,
@@ -319,6 +333,7 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     textTransform: 'uppercase',
     marginBottom: 2,
+    letterSpacing: 0.5,
   },
   priceValue: {
     ...typography.h2,
@@ -331,6 +346,13 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     justifyContent: 'center',
     alignItems: 'center',
+    minWidth: 140,
+    overflow: 'hidden',
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
   },
   bookBtnText: {
     ...typography.h4,

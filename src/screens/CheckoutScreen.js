@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, Image } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, spacing, typography, radius } from '../theme';
 import { useEvents } from '../context/EventContext';
@@ -18,6 +19,8 @@ export default function CheckoutScreen() {
   const [method, setMethod] = useState('chapa');
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
+  
+  const insets = useSafeAreaInsets();
 
   const handlePayment = async () => {
     setProcessing(true);
@@ -43,13 +46,17 @@ export default function CheckoutScreen() {
 
   if (success) {
     return (
-      <SafeAreaView style={styles.centerContainer}>
+      <View style={styles.centerContainer}>
+        <LinearGradient
+          colors={['rgba(16, 185, 129, 0.2)', 'transparent']}
+          style={StyleSheet.absoluteFillObject}
+        />
         <View style={styles.successCircle}>
           <Ionicons name="checkmark" size={64} color="white" />
         </View>
         <Text style={styles.successTitle}>Payment Successful!</Text>
-        <Text style={styles.successText}>Your ticket has been generated.</Text>
-      </SafeAreaView>
+        <Text style={styles.successText}>Your secure digital ticket is ready.</Text>
+      </View>
     );
   }
 
@@ -106,19 +113,27 @@ export default function CheckoutScreen() {
 
       </View>
 
-      <View style={styles.bottomBar}>
+      <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, spacing.lg) }]}>
         <TouchableOpacity 
           style={[styles.payBtn, processing && styles.payBtnDisabled]} 
           onPress={handlePayment}
           disabled={processing}
+          activeOpacity={0.8}
         >
+          <LinearGradient
+            colors={colors.gradientPrimary}
+            style={StyleSheet.absoluteFillObject}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={{ borderRadius: radius.full, ...StyleSheet.absoluteFillObject }}
+          />
           {processing ? (
-            <ActivityIndicator color="white" />
+            <ActivityIndicator color="white" style={{ zIndex: 1 }} />
           ) : (
-            <>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, zIndex: 1 }}>
               <Ionicons name="lock-closed" size={18} color="white" />
               <Text style={styles.payBtnText}>Pay ETB {price}</Text>
-            </>
+            </View>
           )}
         </TouchableOpacity>
       </View>
@@ -238,19 +253,24 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(8, 8, 15, 0.95)',
+    backgroundColor: 'rgba(17, 17, 27, 0.95)',
     padding: spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: 'rgba(255,255,255,0.05)',
   },
   payBtn: {
     backgroundColor: colors.primary,
     flexDirection: 'row',
-    paddingVertical: 16,
+    paddingVertical: 18,
     borderRadius: radius.full,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
+    overflow: 'hidden',
   },
   payBtnDisabled: {
     opacity: 0.7,

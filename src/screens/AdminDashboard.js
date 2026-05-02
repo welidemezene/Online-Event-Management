@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { colors, spacing, typography, radius } from '../theme';
 import { useEvents } from '../context/EventContext';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function AdminDashboard() {
   const navigation = useNavigation();
@@ -71,32 +72,40 @@ export default function AdminDashboard() {
 
   const renderStats = () => (
     <View style={styles.statsGrid}>
-      <View style={styles.statCard}>
+      <LinearGradient colors={['rgba(99,102,241,0.15)', 'rgba(99,102,241,0.05)']} style={styles.statCard}>
         <Text style={styles.statIcon}>📅</Text>
         <Text style={[styles.statValue, { color: colors.primaryLight }]}>{events.length}</Text>
         <Text style={styles.statLabel}>Total Events</Text>
-      </View>
-      <View style={styles.statCard}>
+      </LinearGradient>
+      <LinearGradient colors={['rgba(16,185,129,0.15)', 'rgba(16,185,129,0.05)']} style={styles.statCard}>
         <Text style={styles.statIcon}>🎟️</Text>
         <Text style={[styles.statValue, { color: colors.success }]}>{bookings.length}</Text>
         <Text style={styles.statLabel}>Total Bookings</Text>
-      </View>
-      <View style={styles.statCard}>
+      </LinearGradient>
+      <LinearGradient colors={['rgba(245,158,11,0.15)', 'rgba(245,158,11,0.05)']} style={styles.statCard}>
         <Text style={styles.statIcon}>💰</Text>
         <Text style={[styles.statValue, { color: colors.warning }]}>{totalRevenue}</Text>
         <Text style={styles.statLabel}>ETB Revenue</Text>
-      </View>
+      </LinearGradient>
     </View>
   );
 
   const renderEventsTab = () => (
     <View>
       <TouchableOpacity 
-        style={styles.addBtn}
+        style={styles.addBtnContainer}
         onPress={() => navigation.navigate('ManageEvent')}
+        activeOpacity={0.8}
       >
-        <Ionicons name="add" size={20} color="white" />
-        <Text style={styles.addBtnText}>Add New Event</Text>
+        <LinearGradient
+          colors={colors.gradientPrimary}
+          style={styles.addBtn}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+        >
+          <Ionicons name="add" size={20} color="white" />
+          <Text style={styles.addBtnText}>Add New Event</Text>
+        </LinearGradient>
       </TouchableOpacity>
 
       {events.map(ev => (
@@ -255,12 +264,11 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: colors.bgCard,
     padding: spacing.md,
-    borderRadius: radius.lg,
+    borderRadius: radius.xl,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: 'rgba(255,255,255,0.05)',
   },
   statIcon: {
     fontSize: 24,
@@ -303,14 +311,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingBottom: 40,
   },
+  addBtnContainer: {
+    marginBottom: spacing.lg,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 6,
+  },
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.primary,
     paddingVertical: 14,
-    borderRadius: radius.md,
-    marginBottom: spacing.lg,
+    borderRadius: radius.full,
   },
   addBtnText: {
     ...typography.body,

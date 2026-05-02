@@ -23,11 +23,11 @@ export default function HomeScreen() {
         {/* Header Section */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Hello, {user?.name.split(' ')[0]} 👋</Text>
+            <Text style={styles.greeting}>Hello, {user?.name?.split(' ')[0] || 'Guest'} 👋</Text>
             <Text style={styles.tagline}>Ready for your next event?</Text>
           </View>
           <TouchableOpacity onPress={() => navigation.navigate('ProfileTab')} style={styles.avatar}>
-            <Text style={styles.avatarText}>{user?.name.charAt(0)}</Text>
+            <Text style={styles.avatarText}>{user?.name?.charAt(0) || 'G'}</Text>
           </TouchableOpacity>
         </View>
 
@@ -148,22 +148,27 @@ const styles = StyleSheet.create({
   hero: {
     marginHorizontal: spacing.lg,
     borderRadius: radius.xl,
-    padding: spacing.lg,
+    padding: spacing.xl,
     marginBottom: spacing.xl,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: 'rgba(99,102,241,0.2)',
+    shadowColor: '#6366F1',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 8,
   },
   heroBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(99,102,241,0.15)',
+    backgroundColor: 'rgba(99,102,241,0.2)',
     alignSelf: 'flex-start',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: 'rgba(99,102,241,0.3)',
-    marginBottom: spacing.md,
+    borderColor: 'rgba(99,102,241,0.4)',
+    marginBottom: spacing.lg,
   },
   heroDot: {
     width: 6,
@@ -188,17 +193,18 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    paddingHorizontal: spacing.md,
-    paddingVertical: 12,
-    borderRadius: radius.lg,
+    backgroundColor: 'rgba(255,255,255,0.06)',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: 14,
+    borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.borderLight,
+    borderColor: 'rgba(255,255,255,0.12)',
   },
   searchText: {
     ...typography.body,
-    color: colors.textMuted,
-    marginLeft: 8,
+    color: 'rgba(255,255,255,0.6)',
+    marginLeft: 10,
+    fontWeight: '500',
   },
   section: {
     marginBottom: spacing.xl,
@@ -228,13 +234,18 @@ const styles = StyleSheet.create({
     width: 70,
   },
   categoryIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
     marginBottom: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   categoryLabel: {
     ...typography.caption,

@@ -1,74 +1,105 @@
 import { View, Text, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 import QRCode from 'react-native-qrcode-svg';
-import { colors, radius, shadows, typography, spacing, categoryConfig } from '../theme';
+import { colors, radius, typography, spacing, categoryConfig } from '../theme';
 
 export default function TicketCard({ booking, event, user }) {
   if (!event) return null;
-  
+
   const isUpcoming = new Date(event.date) > new Date();
-  const statusLabel = booking.attended ? '✅ Attended' : isUpcoming ? '🟢 Upcoming' : '⏰ Past';
   const cat = categoryConfig[event.category] || categoryConfig.tech;
-  
-  // Data to encode in QR
-  const qrData = JSON.stringify({ b: booking.bookingId });
+
+  const formattedDate = new Date(event.date).toLocaleDateString('en-US', {
+    weekday: 'short', month: 'long', day: 'numeric', year: 'numeric',
+  });
+  const formattedTime = new Date(event.date).toLocaleTimeString([], {
+    hour: '2-digit', minute: '2-digit',
+  });
+
+  const qrData = JSON.stringify({ bookingId: booking.bookingId });
+
+  const statusConfig = booking.attended
+    ? { label: 'Attended', color: colors.success, bg: 'rgba(16,185,129,0.12)', icon: 'checkmark-circle' }
+    : isUpcoming
+    ? { label: 'Upcoming', color: colors.primaryLight, bg: 'rgba(99,102,241,0.12)', icon: 'time' }
+    : { label: 'Past', color: colors.textMuted, bg: 'rgba(255,255,255,0.05)', icon: 'archive' };
 
   return (
     <View style={styles.card}>
-      <View style={styles.body}>
-        <View style={styles.header}>
-          <View style={[styles.badge, { backgroundColor: cat.bg }]}>
-            <Text style={[styles.badgeText, { color: cat.color }]}>{cat.label}</Text>
+      {/* Ticket Header with gradient */}
+      <LinearGradient
+        colors={[cat.color + '22', cat.color + '08']}
+        style={styles.header}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <View style={styles.headerTop}>
+          <View style={[styles.catBadge, { backgroundColor: cat.bg, borderColor: cat.color + '50' }]}>
+            <Text style={styles.catEmoji}>{cat.emoji}</Text>
+            <Text style={[styles.catLabel, { color: cat.color }]}>{cat.label}</Text>
           </View>
-          <View style={[styles.statusBadge, booking.attended && styles.statusAttended]}>
-            <Text style={styles.statusText}>{statusLabel}</Text>
+          <View style={[styles.statusBadge, { backgroundColor: statusConfig.bg }]}>
+            <Ionicons name={statusConfig.icon} size={12} color={statusConfig.color} />
+            <Text style={[styles.statusText, { color: statusConfig.color }]}>{statusConfig.label}</Text>
           </View>
         </View>
-        
-        <Text style={styles.title} numberOfLines={2}>
-          {event.emoji} {event.title}
-        </Text>
-        
-        <View style={styles.grid}>
-          <View style={styles.gridItem}>
-            <Text style={styles.label}>DATE</Text>
-            <Text style={styles.value}>{new Date(event.date).toLocaleDateString()}</Text>
+
+        <Text style={styles.eventEmoji}>{event.emoji}</Text>
+        <Text style={styles.title} numberOfLines={2}>{event.title}</Text>
+      </LinearGradient>
+
+      {/* Ticket Info Grid */}
+      <View style={styles.infoGrid}>
+        <View style={styles.infoItem}>
+          <Ionicons name="calendar-outline" size={15} color={colors.textMuted} />
+          <View>
+            <Text style={styles.infoLabel}>DATE</Text>
+            <Text style={styles.infoValue}>{formattedDate}</Text>
           </View>
-          <View style={styles.gridItem}>
-            <Text style={styles.label}>TIME</Text>
-            <Text style={styles.value}>
-              {new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </Text>
+        </View>
+        <View style={styles.infoItem}>
+          <Ionicons name="time-outline" size={15} color={colors.textMuted} />
+          <View>
+            <Text style={styles.infoLabel}>TIME</Text>
+            <Text style={styles.infoValue}>{formattedTime}</Text>
           </View>
-          <View style={[styles.gridItem, { width: '100%' }]}>
-            <Text style={styles.label}>LOCATION</Text>
-            <Text style={styles.value} numberOfLines={1}>{event.location}</Text>
+        </View>
+        <View style={styles.infoItem}>
+          <Ionicons name="location-outline" size={15} color={colors.textMuted} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.infoLabel}>LOCATION</Text>
+            <Text style={styles.infoValue} numberOfLines={1}>{event.location}</Text>
           </View>
-          <View style={[styles.gridItem, { width: '100%' }]}>
-            <Text style={styles.label}>BOOKING ID</Text>
-            <Text style={[styles.value, { color: colors.primaryLight, letterSpacing: 1 }]}>
-              {booking.bookingId.toUpperCase()}
-            </Text>
+        </View>
+        <View style={styles.infoItem}>
+          <Ionicons name="person-outline" size={15} color={colors.textMuted} />
+          <View>
+            <Text style={styles.infoLabel}>ATTENDEE</Text>
+            <Text style={styles.infoValue}>{user?.name}</Text>
           </View>
         </View>
       </View>
-      
+
+      {/* Tear Divider */}
       <View style={styles.divider}>
         <View style={styles.notchLeft} />
         <View style={styles.dashedLine} />
         <View style={styles.notchRight} />
       </View>
-      
+
+      {/* QR Code Section */}
       <View style={styles.qrSection}>
         <View style={styles.qrWrapper}>
           <QRCode
             value={qrData}
-            size={120}
+            size={130}
             color={colors.bgBase}
             backgroundColor="white"
           />
         </View>
-        <Text style={styles.scanText}>Scan at venue</Text>
-        <Text style={styles.userName}>{user?.name}</Text>
+        <Text style={styles.bookingId}>{booking.bookingId.toUpperCase()}</Text>
+        <Text style={styles.scanHint}>Present this QR code at the venue entrance</Text>
       </View>
     </View>
   );
@@ -79,63 +110,78 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgCard,
     borderRadius: radius.xl,
     marginBottom: spacing.lg,
+    overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.border,
-    ...shadows.md,
-  },
-  body: {
-    padding: spacing.lg,
+    shadowColor: '#6366F1',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 6,
   },
   header: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xl,
+  },
+  headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: spacing.md,
   },
-  badge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: radius.full,
-  },
-  badgeText: {
-    ...typography.caption,
-  },
-  statusBadge: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    paddingHorizontal: 12,
+  catBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: radius.full,
     borderWidth: 1,
-    borderColor: colors.border,
+    gap: 4,
   },
-  statusAttended: {
-    backgroundColor: 'rgba(16,185,129,0.1)',
-    borderColor: 'rgba(16,185,129,0.3)',
+  catEmoji: {
+    fontSize: 11,
+  },
+  catLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  statusBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radius.full,
+    gap: 4,
   },
   statusText: {
-    ...typography.caption,
-    color: colors.textSecondary,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  eventEmoji: {
+    fontSize: 40,
+    marginBottom: 8,
   },
   title: {
     ...typography.h3,
     color: colors.textPrimary,
-    marginBottom: spacing.md,
+    lineHeight: 26,
   },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  infoGrid: {
+    padding: spacing.lg,
     gap: spacing.md,
   },
-  gridItem: {
-    width: '45%',
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
   },
-  label: {
+  infoLabel: {
     fontSize: 10,
     color: colors.textMuted,
     fontWeight: '700',
     letterSpacing: 0.5,
-    marginBottom: 4,
+    marginBottom: 2,
   },
-  value: {
+  infoValue: {
     ...typography.bodySmall,
     fontWeight: '600',
     color: colors.textPrimary,
@@ -143,30 +189,25 @@ const styles = StyleSheet.create({
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 24,
+    height: 28,
     position: 'relative',
-    overflow: 'hidden',
   },
   notchLeft: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: colors.bgBase,
     position: 'absolute',
-    left: -12,
-    borderRightWidth: 1,
-    borderColor: colors.border,
+    left: -14,
     zIndex: 2,
   },
   notchRight: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: colors.bgBase,
     position: 'absolute',
-    right: -12,
-    borderLeftWidth: 1,
-    borderColor: colors.border,
+    right: -14,
     zIndex: 2,
   },
   dashedLine: {
@@ -175,26 +216,34 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderWidth: 1,
     borderColor: colors.borderLight,
-    marginHorizontal: 16,
+    marginHorizontal: 20,
   },
   qrSection: {
     padding: spacing.lg,
     alignItems: 'center',
+    paddingBottom: spacing.xl,
   },
   qrWrapper: {
-    padding: 12,
+    padding: 14,
     backgroundColor: 'white',
-    borderRadius: radius.md,
-    marginBottom: spacing.sm,
+    borderRadius: radius.lg,
+    marginBottom: spacing.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  scanText: {
+  bookingId: {
+    fontSize: 11,
+    color: colors.primaryLight,
+    fontWeight: '700',
+    letterSpacing: 1.5,
+    marginBottom: 6,
+  },
+  scanHint: {
     fontSize: 12,
     color: colors.textMuted,
-    marginBottom: 2,
-  },
-  userName: {
-    ...typography.bodySmall,
-    fontWeight: '600',
-    color: colors.textSecondary,
+    textAlign: 'center',
   },
 });
