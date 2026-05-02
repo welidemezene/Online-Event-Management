@@ -26,3 +26,8 @@ Event organizers have full CRUD (Create, Read, Update, Delete) capabilities. The
 The application interfaces directly with the native device camera using the Expo Camera API. Admins can scan attendee QR tickets at the door. The system instantly parses the JSON payload, verifies the ticket ID against the database, and marks the user as 'Attended' to prevent duplicate entry fraud.
 
 ## 🛠️ Comprehensive Technology Stack
+
+**Frontend Framework:**
+* React Native (v0.81) for cross-platform rendering
+* Expo SDK 54 for rapid development and native module bridging
+* React Navigation v7 (Nested Stack & Bottom Tabs)
