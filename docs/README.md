@@ -15,3 +15,6 @@ Attendees can effortlessly browse upcoming events. The system features dynamic c
 
 ### 3. Atomic Booking & Concurrency Control
 One of the most complex engineering challenges solved in this application is race-condition prevention. Using Firebase Transactions, the booking engine guarantees that events are never overbooked, even if thousands of users attempt to purchase the final ticket at the exact same millisecond.
+
+### 4. Digital QR Ticketing
+Physical tickets are obsolete. EventSphere automatically generates a highly secure, unique QR code payload for every successful booking. These digital tickets are stored locally on the user's device for fast retrieval at the venue.
