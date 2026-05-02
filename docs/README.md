@@ -31,3 +31,7 @@ The application interfaces directly with the native device camera using the Expo
 * React Native (v0.81) for cross-platform rendering
 * Expo SDK 54 for rapid development and native module bridging
 * React Navigation v7 (Nested Stack & Bottom Tabs)
+
+**Backend Infrastructure:**
+* Firebase Realtime Database (NoSQL Document Store)
+* Firebase Authentication (Persistent Sessions via AsyncStorage)
