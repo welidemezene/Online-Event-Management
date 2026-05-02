@@ -40,3 +40,18 @@ The application interfaces directly with the native device camera using the Expo
 * Custom StyleSheet Theme Engine (colors, spacing, typography)
 * Expo Linear Gradient for premium hero sections
 * React Native Vector Icons (Ionicons) for consistent symbology
+
+## 🚀 Local Installation Guide
+
+To deploy and run this project in a local development environment:
+
+1. **Clone the repository:**
+   `git clone https://github.com/welidemezene/Online-Event-Management.git`
+2. **Install core dependencies:**
+   `npm install`
+3. **Configure Environment:**
+   Ensure you have a Firebase project initialized. Replace the configuration object in `src/config/firebase.js` with your own credentials.
+4. **Start the Bundler:**
+   `npx expo start --clear`
+5. **Run the App:**
+   Scan the generated QR code using Expo Go on your mobile device, or press 'a' to run on an Android Emulator.
