@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -72,7 +72,10 @@ export default function ProfileScreen() {
         <View style={styles.menuSection}>
           <Text style={styles.menuTitle}>Settings</Text>
           
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => Alert.alert('Coming Soon', 'Edit Profile functionality will be available in the next update.')}
+          >
             <View style={styles.menuItemLeft}>
               <Ionicons name="person-outline" size={22} color={colors.textSecondary} />
               <Text style={styles.menuItemText}>Edit Profile</Text>
@@ -80,7 +83,10 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={20} color={colors.borderLight} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => Alert.alert('Coming Soon', 'Notification settings will be available in the next update.')}
+          >
             <View style={styles.menuItemLeft}>
               <Ionicons name="notifications-outline" size={22} color={colors.textSecondary} />
               <Text style={styles.menuItemText}>Notifications</Text>
