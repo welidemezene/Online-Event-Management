@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+<<<<<<< HEAD
 import { View, StyleSheet, Animated } from 'react-native';
 
 export default function PulseLoader({
@@ -43,18 +44,65 @@ export default function PulseLoader({
         const opacity = anim.interpolate({
           inputRange: [0, 0.7, 1],
           outputRange: [0.8, 0.1, 0],
+=======
+import { View, Animated, Easing, StyleSheet } from 'react-native';
+
+export default function PulseLoader({ size = 30, color = 'white', pulseCount = 2, speed = 1000 }) {
+  const anims = useRef(Array.from({ length: pulseCount }).map(() => new Animated.Value(0))).current;
+
+  useEffect(() => {
+    const animations = anims.map((anim, index) => {
+      return Animated.sequence([
+        Animated.delay(index * (speed / pulseCount)),
+        Animated.loop(
+          Animated.timing(anim, {
+            toValue: 1,
+            duration: speed,
+            easing: Easing.bezier(0.4, 0.0, 0.2, 1),
+            useNativeDriver: true,
+          })
+        )
+      ]);
+    });
+
+    Animated.parallel(animations).start();
+
+    return () => {
+      anims.forEach(anim => anim.stopAnimation());
+    };
+  }, [anims, speed, pulseCount]);
+
+  return (
+    <View style={{ width: size, height: size, justifyContent: 'center', alignItems: 'center' }}>
+      {anims.map((anim, index) => {
+        const scale = anim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 1],
+        });
+
+        const opacity = anim.interpolate({
+          inputRange: [0, 0.5, 1],
+          outputRange: [0.8, 0.2, 0],
+>>>>>>> bc28a95 (fix: Add missing PulseLoader component)
         });
 
         return (
           <Animated.View
             key={index}
             style={[
+<<<<<<< HEAD
               styles.pulse,
               {
                 backgroundColor: color,
                 width: size,
                 height: size,
                 borderRadius: size / 2,
+=======
+              StyleSheet.absoluteFillObject,
+              {
+                borderRadius: size / 2,
+                backgroundColor: color,
+>>>>>>> bc28a95 (fix: Add missing PulseLoader component)
                 transform: [{ scale }],
                 opacity,
               },
@@ -62,6 +110,7 @@ export default function PulseLoader({
           />
         );
       })}
+<<<<<<< HEAD
       {/* Center dot */}
       <View
         style={[
@@ -96,3 +145,8 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
 });
+=======
+    </View>
+  );
+}
+>>>>>>> bc28a95 (fix: Add missing PulseLoader component)
