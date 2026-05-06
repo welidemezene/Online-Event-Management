@@ -52,10 +52,10 @@ export const AuthProvider = ({ children }) => {
     // Update Firebase Auth display name
     await updateProfile(result.user, { displayName: name });
 
-    // Determine role: first user gets admin, everyone else is regular user
+    // Determine role: first user gets admin, or if the email is the demo admin email
     const usersSnapshot = await get(ref(database, 'users'));
     const isFirstUser = !usersSnapshot.exists();
-    const role = isFirstUser ? 'admin' : 'user';
+    const role = (isFirstUser || email.toLowerCase() === 'admin@eventsphere.com') ? 'admin' : 'user';
 
     // Save profile to Realtime Database
     const profile = {
