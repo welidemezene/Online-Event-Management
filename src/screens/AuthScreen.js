@@ -38,14 +38,7 @@ export default function AuthScreen() {
   };
 
   const fillDemo = (role) => {
-    setIsLogin(true);
-    if (role === 'admin') {
-      setEmail('admin@eventsphere.com');
-      setPassword('admin123');
-    } else {
-      setEmail('alex@example.com');
-      setPassword('pass123');
-    }
+    // Demo accounts removed for production
   };
 
   return (
@@ -129,22 +122,9 @@ export default function AuthScreen() {
               disabled={loading}
             >
               <Text style={styles.submitBtnText}>
-                {loading ? 'Please wait...' : (isLogin ? 'Sign In →' : 'Create Account →')}
+                {loading ? 'Please wait...' : (isLogin ? 'Login' : 'Sign Up')}
               </Text>
             </TouchableOpacity>
-
-            {isLogin && (
-              <View style={styles.demoSection}>
-                <Text style={styles.demoText}>Try demo: </Text>
-                <TouchableOpacity onPress={() => fillDemo('user')}>
-                  <Text style={styles.demoLink}>User</Text>
-                </TouchableOpacity>
-                <Text style={styles.demoText}> or </Text>
-                <TouchableOpacity onPress={() => fillDemo('admin')}>
-                  <Text style={styles.demoLink}>Admin</Text>
-                </TouchableOpacity>
-              </View>
-            )}
           </View>
 
         </ScrollView>
