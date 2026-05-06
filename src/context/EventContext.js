@@ -80,6 +80,7 @@ const SEED_EVENTS = [
 export const EventProvider = ({ children }) => {
   const [events, setEvents] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [comments, setComments] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -121,11 +122,34 @@ export const EventProvider = ({ children }) => {
       setLoading(false);
     });
 
+    // Real-time listener for comments
+    const commentsRef = ref(database, 'comments');
+    const unsubComments = onValue(commentsRef, (snapshot) => {
+      if (snapshot.exists()) {
+        setComments(snapshot.val());
+      } else {
+        setComments({});
+      }
+    });
+
     return () => {
       unsubEvents();
       unsubBookings();
+      unsubComments();
     };
   }, []);
+
+  const addComment = async (eventId, userId, userName, text) => {
+    const eventCommentsRef = ref(database, `comments/${eventId}`);
+    const newRef = push(eventCommentsRef);
+    await set(newRef, {
+      id: newRef.key,
+      userId,
+      userName,
+      text,
+      timestamp: new Date().toISOString(),
+    });
+  };
 
   const bookEvent = async (userId, eventId) => {
     // 1. Check local state first (fast fail if obviously booked/full)
@@ -204,7 +228,7 @@ export const EventProvider = ({ children }) => {
   };
 
   return (
-    <EventContext.Provider value={{ events, bookings, loading, bookEvent, cancelBooking, addEvent, deleteEvent, markAttended }}>
+    <EventContext.Provider value={{ events, bookings, comments, loading, bookEvent, cancelBooking, addEvent, deleteEvent, markAttended, addComment }}>
       {children}
     </EventContext.Provider>
   );

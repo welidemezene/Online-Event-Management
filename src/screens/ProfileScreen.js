@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     overflow: 'hidden',
-    marginBottom: 40,
+    marginBottom: 100,
   },
   menuTitle: {
     ...typography.h4,

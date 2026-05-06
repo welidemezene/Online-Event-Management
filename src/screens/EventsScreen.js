@@ -7,6 +7,7 @@ import { colors, spacing, typography, radius } from '../theme';
 import { useEvents } from '../context/EventContext';
 import EventCard from '../components/EventCard';
 import CategoryFilter from '../components/CategoryFilter';
+import SearchBar from '../components/SearchBar';
 
 export default function EventsScreen() {
   const navigation = useNavigation();
@@ -18,13 +19,6 @@ export default function EventsScreen() {
   
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [searchQuery, setSearchQuery] = useState('');
-  const searchInputRef = useRef(null);
-
-  useEffect(() => {
-    if (shouldFocusSearch && searchInputRef.current) {
-      setTimeout(() => searchInputRef.current.focus(), 100);
-    }
-  }, [shouldFocusSearch]);
 
   const filteredEvents = events.filter(event => {
     const matchesCategory = activeCategory === 'all' || event.category === activeCategory;
@@ -38,25 +32,12 @@ export default function EventsScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Explore</Text>
         
-        <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color={colors.textMuted} />
-          <TextInput
-            ref={searchInputRef}
-            style={styles.searchInput}
-            placeholder="Search events, venues..."
-            placeholderTextColor={colors.textMuted}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-          {searchQuery.length > 0 && (
-            <Ionicons 
-              name="close-circle" 
-              size={20} 
-              color={colors.textMuted} 
-              onPress={() => setSearchQuery('')} 
-            />
-          )}
-        </View>
+        <SearchBar 
+          placeholder="Search events, venues..."
+          initialValue={searchQuery}
+          onSearch={setSearchQuery}
+          autoFocus={shouldFocusSearch}
+        />
       </View>
 
       <View style={styles.filterContainer}>
@@ -104,22 +85,6 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     marginBottom: spacing.md,
   },
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.bgSurface,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    height: 48,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: spacing.sm,
-    color: colors.textPrimary,
-    fontSize: 15,
-  },
   filterContainer: {
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
@@ -127,7 +92,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: spacing.lg,
-    paddingBottom: 40,
+    paddingBottom: 100,
   },
   emptyState: {
     alignItems: 'center',

@@ -7,6 +7,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { colors, spacing, typography, radius } from '../theme';
 import { useEvents } from '../context/EventContext';
 import { useAuth } from '../context/AuthContext';
+import PulseLoader from '../components/PulseLoader';
 
 export default function CheckoutScreen() {
   const navigation = useNavigation();
@@ -128,7 +129,9 @@ export default function CheckoutScreen() {
             style={{ borderRadius: radius.full, ...StyleSheet.absoluteFillObject }}
           />
           {processing ? (
-            <ActivityIndicator color="white" style={{ zIndex: 1 }} />
+            <View style={{ zIndex: 1 }}>
+              <PulseLoader size={30} color="white" pulseCount={2} speed={1000} />
+            </View>
           ) : (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, zIndex: 1 }}>
               <Ionicons name="lock-closed" size={18} color="white" />

@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: spacing.lg,
-    paddingBottom: 40,
+    paddingBottom: 100,
   },
   emptyState: {
     alignItems: 'center',

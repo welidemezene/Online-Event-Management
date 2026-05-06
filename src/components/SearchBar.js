@@ -16,6 +16,7 @@ export default function SearchBar({
   onFocus,
   onBlur,
   initialValue = '',
+  autoFocus = false,
 }) {
   const [query, setQuery] = useState(initialValue);
   const [isFocused, setIsFocused] = useState(false);
@@ -86,6 +87,7 @@ export default function SearchBar({
           returnKeyType="search"
           autoCapitalize="none"
           autoCorrect={false}
+          autoFocus={autoFocus}
         />
 
         {query.length > 0 && (

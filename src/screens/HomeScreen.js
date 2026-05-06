@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,17 +8,25 @@ import { colors, spacing, typography, categoryConfig, radius } from '../theme';
 import EventCard from '../components/EventCard';
 import { useEvents } from '../context/EventContext';
 import { useAuth } from '../context/AuthContext';
+import NotificationBanner from '../components/NotificationBanner';
 
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { events } = useEvents();
   const { user } = useAuth();
+  const [showNotification, setShowNotification] = useState(true);
   
   const featuredEvents = events.slice(0, 3);
   const categories = Object.keys(categoryConfig);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <NotificationBanner 
+        visible={showNotification} 
+        onDismiss={() => setShowNotification(false)}
+        message="🚀 A new massive Tech conference was just added!"
+        type="success"
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
         
         {/* Header Section */}
@@ -104,7 +113,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <View style={{ height: 40 }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
     </SafeAreaView>
   );

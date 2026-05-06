@@ -23,14 +23,21 @@ function TabNavigator() {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#08080F', // bgBase
-          borderTopColor: 'rgba(255,255,255,0.08)',
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 60,
+          backgroundColor: '#0D0D1A',
+          borderTopColor: 'rgba(255,255,255,0.06)',
+          borderTopWidth: 1,
+          // NO fixed height or paddingBottom — let the system handle gesture nav insets
+        },
+        tabBarItemStyle: {
+          paddingVertical: 6,
         },
         tabBarActiveTintColor: colors.primaryLight,
         tabBarInactiveTintColor: colors.textMuted,
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '600',
+          marginBottom: 2,
+        },
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
 

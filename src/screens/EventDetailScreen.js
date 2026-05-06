@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
+import { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image, TextInput } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -7,18 +8,21 @@ import { colors, spacing, typography, categoryConfig, radius } from '../theme';
 import { useEvents } from '../context/EventContext';
 import { useAuth } from '../context/AuthContext';
 import CountdownTimer from '../components/CountdownTimer';
+import UserAvatarGroup from '../components/UserAvatarGroup';
 
 export default function EventDetailScreen() {
   const navigation = useNavigation();
   const route = useRoute();
   const { eventId } = route.params;
+  const insets = useSafeAreaInsets();
   
-  const { events, bookings, bookEvent } = useEvents();
+  const { events, bookings, bookEvent, comments, addComment } = useEvents();
   const { user } = useAuth();
+  
+  const [newComment, setNewComment] = useState('');
   
   const event = events.find(e => e.eventId === eventId);
   const myBooking = bookings.find(b => b.eventId === eventId && b.userId === user?.uid);
-  const insets = useSafeAreaInsets();
   
   if (!event) return null;
   
@@ -52,6 +56,28 @@ export default function EventDetailScreen() {
       );
     } catch (error) {
       Alert.alert("Booking Failed", error.message);
+    }
+  };
+
+  // Generate some mock attendees to make the UI look alive
+  const generateMockAttendees = (count) => {
+    const names = ['Abebe Kebede', 'Sara Alemu', 'Dawit Assefa', 'Hanna Tadesse', 'Yonas Belay', 'Betelhem Girma', 'Samuel Tilahun', 'Marta Getachew'];
+    return Array.from({ length: Math.min(count, 12) }).map((_, i) => ({
+      uid: `mock_${i}`,
+      name: names[i % names.length],
+    }));
+  };
+  
+  const attendees = generateMockAttendees(event.currentBookings);
+  const eventComments = comments[eventId] ? Object.values(comments[eventId]) : [];
+
+  const handlePostComment = async () => {
+    if (!newComment.trim()) return;
+    try {
+      await addComment(eventId, user.uid, user.name, newComment.trim());
+      setNewComment('');
+    } catch (error) {
+      Alert.alert("Error", "Could not post comment");
     }
   };
 
@@ -107,6 +133,10 @@ export default function EventDetailScreen() {
             </View>
           </View>
 
+          <View style={[styles.section, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+            <UserAvatarGroup users={attendees} max={5} size={32} />
+          </View>
+
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Countdown</Text>
             <CountdownTimer targetDate={event.date} />
@@ -135,6 +165,37 @@ export default function EventDetailScreen() {
                 ]} />
               </View>
             </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Discussion</Text>
+            
+            {eventComments.map(comment => (
+              <View key={comment.id} style={styles.commentItem}>
+                <View style={styles.commentHeader}>
+                  <Text style={styles.commentAuthor}>{comment.userName}</Text>
+                  <Text style={styles.commentTime}>{new Date(comment.timestamp).toLocaleDateString()}</Text>
+                </View>
+                <Text style={styles.commentText}>{comment.text}</Text>
+              </View>
+            ))}
+            
+            {user ? (
+              <View style={styles.commentInputRow}>
+                <TextInput
+                  style={styles.commentInput}
+                  placeholder="Ask a question..."
+                  placeholderTextColor={colors.textMuted}
+                  value={newComment}
+                  onChangeText={setNewComment}
+                />
+                <TouchableOpacity style={styles.commentPostBtn} onPress={handlePostComment}>
+                  <Ionicons name="send" size={18} color="white" />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <Text style={styles.loginToComment}>Log in to join the discussion.</Text>
+            )}
           </View>
 
         </View>
@@ -312,6 +373,62 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: colors.primary,
     borderRadius: 4,
+  },
+  commentItem: {
+    backgroundColor: colors.bgSurface,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+  },
+  commentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  commentAuthor: {
+    ...typography.bodySmall,
+    fontWeight: '700',
+    color: colors.primaryLight,
+  },
+  commentTime: {
+    fontSize: 10,
+    color: colors.textMuted,
+  },
+  commentText: {
+    ...typography.bodySmall,
+    color: colors.textSecondary,
+  },
+  commentInputRow: {
+    flexDirection: 'row',
+    marginTop: spacing.md,
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  commentInput: {
+    flex: 1,
+    backgroundColor: colors.bgSurface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 10,
+    color: colors.textPrimary,
+  },
+  commentPostBtn: {
+    backgroundColor: colors.primary,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loginToComment: {
+    ...typography.bodySmall,
+    color: colors.textMuted,
+    fontStyle: 'italic',
+    marginTop: spacing.md,
   },
   bottomBar: {
     position: 'absolute',
