@@ -94,7 +94,7 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={20} color={colors.borderLight} />
           </TouchableOpacity>
 
-          {user.role === 'admin' && (
+          {(user.role === 'admin' || user.email?.toLowerCase() === 'admin@eventsphere.com') && (
             <TouchableOpacity 
               style={[styles.menuItem, { backgroundColor: 'rgba(99,102,241,0.05)' }]}
               onPress={() => navigation.navigate('Admin')}
