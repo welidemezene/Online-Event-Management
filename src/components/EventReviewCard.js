@@ -133,4 +133,21 @@ const styles = StyleSheet.create({
   ratingSection: {
     marginBottom: 20,
   },
+  label: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#9ca3af',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 10,
+  },
+  starsRow: {
+    flexDirection: 'row',
+    marginBottom: 8,
+  },
+  ratingHint: {
+    fontSize: 13,
+    color: '#f59e0b',
+    fontWeight: '600',
+  },
 });
