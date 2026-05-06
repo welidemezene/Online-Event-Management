@@ -7,6 +7,10 @@ export default function PulseLoader({
   pulseCount = 3,
   speed = 1500,
 }) {
+  const animations = useRef(
+    Array.from({ length: pulseCount }).map(() => new Animated.Value(0))
+  ).current;
+  
   return (
     <View style={[styles.container, { width: size, height: size }]}>
 
