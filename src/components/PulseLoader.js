@@ -62,7 +62,7 @@ export default function PulseLoader({
           />
         );
       })}
-
+      {/* Center dot */}
       <View
         style={[
           styles.centerDot,
