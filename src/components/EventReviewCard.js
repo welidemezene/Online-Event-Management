@@ -108,3 +108,29 @@ export default function EventReviewCard({ eventTitle = 'Event', onSubmit }) {
     </View>
   );
 }
+
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#1a1a2e',
+    borderRadius: 16,
+    padding: 20,
+    marginHorizontal: 16,
+    borderWidth: 1,
+    borderColor: '#2d2d44',
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#f9fafb',
+    marginBottom: 4,
+  },
+  eventName: {
+    fontSize: 13,
+    color: '#9ca3af',
+    marginBottom: 20,
+  },
+  ratingSection: {
+    marginBottom: 20,
+  },
+});
