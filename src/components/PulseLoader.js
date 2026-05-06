@@ -62,6 +62,18 @@ export default function PulseLoader({
           />
         );
       })}
+
+      <View
+        style={[
+          styles.centerDot,
+          {
+            backgroundColor: color,
+            width: size * 0.25,
+            height: size * 0.25,
+            borderRadius: (size * 0.25) / 2,
+          },
+        ]}
+      />
     </View>
   );
 }
