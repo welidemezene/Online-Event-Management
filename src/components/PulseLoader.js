@@ -10,7 +10,28 @@ export default function PulseLoader({
   const animations = useRef(
     Array.from({ length: pulseCount }).map(() => new Animated.Value(0))
   ).current;
-  
+
+  useEffect(() => {
+    const pulseAnimations = animations.map((anim, index) => {
+      return Animated.loop(
+        Animated.sequence([
+          Animated.delay((speed / pulseCount) * index),
+          Animated.timing(anim, {
+            toValue: 1,
+            duration: speed,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+    });
+
+    pulseAnimations.forEach((anim) => anim.start());
+
+    return () => {
+      pulseAnimations.forEach((anim) => anim.stop());
+    };
+  }, [animations, pulseCount, speed]);
+
   return (
     <View style={[styles.container, { width: size, height: size }]}>
 
