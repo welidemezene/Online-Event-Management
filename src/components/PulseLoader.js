@@ -34,7 +34,34 @@ export default function PulseLoader({
 
   return (
     <View style={[styles.container, { width: size, height: size }]}>
+      {animations.map((anim, index) => {
+        const scale = anim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0.2, 2],
+        });
 
+        const opacity = anim.interpolate({
+          inputRange: [0, 0.7, 1],
+          outputRange: [0.8, 0.1, 0],
+        });
+
+        return (
+          <Animated.View
+            key={index}
+            style={[
+              styles.pulse,
+              {
+                backgroundColor: color,
+                width: size,
+                height: size,
+                borderRadius: size / 2,
+                transform: [{ scale }],
+                opacity,
+              },
+            ]}
+          />
+        );
+      })}
     </View>
   );
 }
