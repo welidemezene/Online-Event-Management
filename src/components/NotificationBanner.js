@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -45,6 +45,10 @@ export default function NotificationBanner({
 }) {
   const [slideAnim] = useState(new Animated.Value(-100));
   const [opacityAnim] = useState(new Animated.Value(0));
+  const [scaleAnim] = useState(new Animated.Value(0.95));
+
+  const progressAnim = useRef(new Animated.Value(100)).current;
+
   const config = NOTIFICATION_TYPES[type] || NOTIFICATION_TYPES.info;
 
   useEffect(() => {
@@ -61,12 +65,26 @@ export default function NotificationBanner({
           duration: 300,
           useNativeDriver: true,
         }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 6,
+          useNativeDriver: true,
+        }),
       ]).start();
+
+      progressAnim.setValue(100);
+
+      Animated.timing(progressAnim, {
+        toValue: 0,
+        duration: duration,
+        useNativeDriver: false,
+      }).start();
 
       if (duration > 0) {
         const timer = setTimeout(() => {
           handleDismiss();
         }, duration);
+
         return () => clearTimeout(timer);
       }
     }
@@ -99,18 +117,45 @@ export default function NotificationBanner({
         {
           backgroundColor: config.background,
           borderColor: config.border,
-          transform: [{ translateY: slideAnim }],
+          transform: [
+            { translateY: slideAnim },
+            { scale: scaleAnim },
+          ],
           opacity: opacityAnim,
         },
       ]}
     >
       <View style={styles.content}>
         <Ionicons name={config.icon} size={22} color={config.color} />
-        <Text style={[styles.message, { color: config.color }]}>{message}</Text>
+
+        <Text
+          style={[styles.message, { color: config.color }]}
+          numberOfLines={2}
+        >
+          {message}
+        </Text>
       </View>
-      <TouchableOpacity onPress={handleDismiss} style={styles.closeBtn}>
+
+      <TouchableOpacity
+        onPress={handleDismiss}
+        style={styles.closeBtn}
+        activeOpacity={0.7}
+      >
         <Ionicons name="close" size={18} color={config.color} />
       </TouchableOpacity>
+
+      <Animated.View
+        style={[
+          styles.progressBar,
+          {
+            backgroundColor: config.color,
+            width: progressAnim.interpolate({
+              inputRange: [0, 100],
+              outputRange: ['0%', '100%'],
+            }),
+          },
+        ]}
+      />
     </Animated.View>
   );
 }
@@ -129,26 +174,41 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     zIndex: 9999,
+    overflow: 'hidden',
+
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 12,
     elevation: 8,
   },
+
   content: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
     gap: 10,
   },
+
   message: {
     fontSize: 14,
     fontWeight: '600',
     lineHeight: 20,
     flex: 1,
   },
+
   closeBtn: {
-    padding: 4,
+    padding: 6,
     marginLeft: 8,
+    borderRadius: 20,
+  },
+
+  progressBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    height: 3,
+    borderBottomLeftRadius: 14,
+    borderBottomRightRadius: 14,
   },
 });
