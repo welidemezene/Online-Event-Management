@@ -204,11 +204,14 @@ const styles = StyleSheet.create({
   },
 
   progressBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    height: 3,
-    borderBottomLeftRadius: 14,
-    borderBottomRightRadius: 14,
-  },
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  height: 4,
+  opacity: 0.9,
+  borderBottomLeftRadius: 12,
+  borderBottomRightRadius: 12,
+  shadowOpacity: 0.2,
+  elevation: 2,
+},
 });
