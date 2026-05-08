@@ -1,57 +1,101 @@
-# EventSphere: Next-Generation Event Management 🌐
+# 🌐 EventSphere: The Ultimate Event Management Ecosystem
 
-EventSphere is a modern, full-stack mobile application designed to completely revolutionize event discovery, ticket booking, and check-in management. Built as a comprehensive Senior Project, it bridges the gap between event organizers and attendees through a seamless, real-time digital experience.
+Welcome to **EventSphere**, a comprehensive solution for modern event discovery and management. This project features a **high-fidelity Web Platform** and a **cross-platform Mobile Application**, both powered by a unified Firebase backend.
 
-## 🎯 Project Motivation
-The traditional event management industry relies heavily on fragmented systems, paper tickets, and manual verification, leading to slow queues, fraud, and poor user experiences. EventSphere was engineered to consolidate these processes into a single, high-performance mobile application that guarantees atomic ticket processing and instantaneous check-ins.
+---
 
-## ✨ Core Features & Capabilities
+## 🚀 Live Links
+- **Web Platform:** [https://eventsphere-web-lemon.vercel.app](https://eventsphere-web-lemon.vercel.app)
+- **Mobile APK:** [Insert your APK Link Here]
+- **GitHub Repository:** [https://github.com/welidemezene/Online-Event-Management](https://github.com/welidemezene/Online-Event-Management)
 
-### 1. Secure Role-Based Authentication
-EventSphere implements a robust email/password login system powered by Firebase Authentication. It features strict role-based access control, ensuring that standard users cannot access administrative capabilities. The first user to register on a fresh database is automatically granted 'Admin' privileges.
+---
 
-### 2. Real-time Event Discovery Engine
-Attendees can effortlessly browse upcoming events. The system features dynamic category filtering (e.g., Tech, Music, Sports) and displays live availability metrics. As tickets are booked, the UI updates the remaining capacity across all devices globally in real-time.
+## 📖 How to Use the Application
 
-### 3. Atomic Booking & Concurrency Control
-One of the most complex engineering challenges solved in this application is race-condition prevention. Using Firebase Transactions, the booking engine guarantees that events are never overbooked, even if thousands of users attempt to purchase the final ticket at the exact same millisecond.
+### 1. User Journey (Web & Mobile)
+- **Discover:** Browse the curated list of events on the Home screen. Use the Search Bar or Category Filters (Tech, Music, Sports) to find what you love.
+- **Join:** Click on an event to see rich details, including location, time, and ticket price.
+- **Book:** Authenticate using the premium Split-Screen login flow. Once logged in, click "Book Ticket" to reserve your spot.
+- **Access:** View your unique QR-coded tickets in the "My Tickets" section. This QR code is scanned at the event entrance for check-in.
+- **Engage:** Leave comments on events to share your excitement with the community.
 
-### 4. Digital QR Ticketing
-Physical tickets are obsolete. EventSphere automatically generates a highly secure, unique QR code payload for every successful booking. These digital tickets are stored locally on the user's device for fast retrieval at the venue.
+### 2. Admin Journey
+- **Manage:** Access the Admin Dashboard to create new events or delete old ones.
+- **Monitor:** Track venue capacity in real-time through the event detail analytics.
 
-### 5. Advanced Admin Dashboard & Analytics
-Event organizers have full CRUD (Create, Read, Update, Delete) capabilities. They can instantly publish new events with high-resolution network images, set pricing, and monitor real-time revenue analytics dynamically calculated from the live bookings database.
+---
 
-### 6. Native Hardware Integration
-The application interfaces directly with the native device camera using the Expo Camera API. Admins can scan attendee QR tickets at the door. The system instantly parses the JSON payload, verifies the ticket ID against the database, and marks the user as 'Attended' to prevent duplicate entry fraud.
+## 📂 Project Architecture & Key File Paths
 
-## 🛠️ Comprehensive Technology Stack
+This project is organized into two primary environments:
 
-**Frontend Framework:**
-* React Native (v0.81) for cross-platform rendering
-* Expo SDK 54 for rapid development and native module bridging
-* React Navigation v7 (Nested Stack & Bottom Tabs)
+### 🌐 Web Platform (`/EventSphereWeb`)
+Built with React 19 + Vite for a high-performance desktop experience.
+- **`src/pages/`**: Main page views (HomePage, EventsPage, AuthPage, MyTicketsPage).
+- **`src/components/`**: Reusable UI elements (Navbar, Footer, EventCard).
+- **`src/context/`**: Global state management (AuthContext, EventContext).
+- **`src/config/firebase.js`**: Backend connection settings.
+- **`src/index.css`**: Global design tokens and 4K scaling variables.
 
-**Backend Infrastructure:**
-* Firebase Realtime Database (NoSQL Document Store)
-* Firebase Authentication (Persistent Sessions via AsyncStorage)
+### 📱 Mobile App (`/EventSphere`)
+Built with React Native + Expo for iOS and Android.
+- **`src/screens/`**: Mobile views (HomeScreen, EventDetailScreen, ProfileScreen).
+- **`src/navigation/`**: AppNavigator for screen transitions.
+- **`src/components/`**: Mobile-specific components (TicketCard, EventReviewCard).
+- **`src/theme/`**: Unified color and typography system.
 
-**UI/UX Design System:**
-* Custom StyleSheet Theme Engine (colors, spacing, typography)
-* Expo Linear Gradient for premium hero sections
-* React Native Vector Icons (Ionicons) for consistent symbology
+---
 
-## 🚀 Local Installation Guide
+## 🛠 Technical Setup
 
-To deploy and run this project in a local development environment:
+### Web Setup
+```bash
+cd EventSphereWeb
+npm install
+npm run dev
+```
 
-1. **Clone the repository:**
-   `git clone https://github.com/welidemezene/Online-Event-Management.git`
-2. **Install core dependencies:**
-   `npm install`
-3. **Configure Environment:**
-   Ensure you have a Firebase project initialized. Replace the configuration object in `src/config/firebase.js` with your own credentials.
-4. **Start the Bundler:**
-   `npx expo start --clear`
-5. **Run the App:**
-   Scan the generated QR code using Expo Go on your mobile device, or press 'a' to run on an Android Emulator.
+### Mobile Setup
+```bash
+cd EventSphere
+npm install
+npx expo start
+```
+
+---
+
+## ✨ Features at a Glance
+- ✅ **Full-Stack Firebase Integration:** Real-time data sync and secure Auth.
+- ✅ **4K UI Optimization:** Fluid scaling for the largest desktop monitors.
+- ✅ **QR Code System:** Automated ticket generation and validation logic.
+- ✅ **Cross-Platform:** Seamless experience whether you are on a phone or a PC.
+
+---
+
+## 🛠 Project Specifications & Developer Documentation
+
+### 🏗 Architecture Overview
+The system follows a **Decoupled Client-Server Architecture** using Firebase as a Serverless Backend.
+- **State Management:** React Context API for global user and event state.
+- **Service Layer:** Centralized Firebase services for Auth and Firestore operations to ensure consistency across Web and Mobile.
+- **Styling System:** Unified design tokens for colors, spacing, and typography across both platforms.
+
+### 📊 Database Schema (Firestore)
+- **`events`**: `title`, `description`, `date`, `location`, `price`, `capacity`, `category`, `emoji`.
+- **`bookings`**: `userId`, `eventId`, `bookingId`, `attended` (boolean), `timestamp`.
+- **`users`**: `uid`, `email`, `displayName`, `role` (user/admin).
+
+### 🧪 Quality Assurance & Testing
+- **Manual Verification:** Comprehensive test suites for Auth flows, Ticket Booking, and Admin operations.
+- **Responsive Audit:** Verified layout integrity on devices ranging from iPhone 13 up to 4K Desktop monitors.
+- **Firebase Security Rules:** Implemented to ensure only authenticated users can book tickets and only admins can manage events.
+
+### 📘 User Manual Highlights
+1. **Registration:** Create an account to start exploring.
+2. **Booking:** Select an event and confirm your booking.
+3. **Check-in:** Present your unique QR code (found in My Tickets) at the event.
+4. **Administration:** Admins can access the dashboard to keep the event list up-to-date.
+
+---
+*This documentation is part of the Senior Project deliverables.*
