@@ -90,7 +90,7 @@ The system follows a **Decoupled Client-Server Architecture** using Firebase as 
 - **Manual Verification:** Comprehensive test suites for Auth flows, Ticket Booking, and Admin operations.
 - **Responsive Audit:** Verified layout integrity on devices ranging from iPhone 13 up to 4K Desktop monitors.
 - **Firebase Security Rules:** Implemented to ensure only authenticated users can book tickets and only admins can manage events.
-
+.
 ### 📘 User Manual Highlights
 1. **Registration:** Create an account to start exploring.
 2. **Booking:** Select an event and confirm your booking.
