@@ -5,7 +5,7 @@ Welcome to **EventSphere**, a comprehensive solution for modern event discovery 
 ---
 
 ## 🚀 Live Links
-- **Web Platform:** [https://eventsphere-web-lemon.vercel.app](https://eventsphere-web-lemon.vercel.app)
+- **Web Platform:** [https://eventsphere-web-sepia.vercel.app](https://eventsphere-web-sepia.vercel.app)
 - **Mobile APK:** https://expo.dev/accounts/welide/projects/EventSphere/builds/07c08f8a-097c-457f-9059-22200774a0eb
 - **GitHub Repository:** [https://github.com/welidemezene/Online-Event-Management](https://github.com/welidemezene/Online-Event-Management)
 
