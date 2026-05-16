@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert, TextInput, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -17,30 +17,39 @@ export default function CheckoutScreen() {
   const { bookEvent } = useEvents();
   const { user } = useAuth();
   
-  const [method, setMethod] = useState('chapa');
+  const [method, setMethod] = useState('telebirr');
   const [processing, setProcessing] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [reference, setReference] = useState('');
+
+  const PAYMENT_METHODS = [
+    { id: 'telebirr', label: 'Telebirr', icon: '📱', ussd: '*127#', hint: 'Dial *127# → Send Money → Enter amount → Copy the reference number here.' },
+    { id: 'cbebirr', label: 'CBE Birr', icon: '🏦', ussd: '*847#', hint: 'Dial *847# → Transfer → Enter amount → Copy the reference number here.' },
+    { id: 'amole', label: 'Amole', icon: '💳', ussd: 'App', hint: 'Open Amole app → Pay → Enter amount → Copy the reference number here.' },
+    { id: 'bank', label: 'Bank Transfer', icon: '🏛️', ussd: 'Ref', hint: 'Transfer to CBE: 1000123456789 (EventSphere Ltd) → Enter your bank reference here.' },
+  ];
+
+  const selectedMethod = PAYMENT_METHODS.find(m => m.id === method);
   
   const insets = useSafeAreaInsets();
 
   const handlePayment = async () => {
+    if (!reference.trim()) {
+      Alert.alert('Reference Required', 'Please enter your payment reference number.');
+      return;
+    }
     setProcessing(true);
-    
-    // Simulate network delay for payment processing
     setTimeout(async () => {
       try {
         await bookEvent(user.uid, eventId);
         setProcessing(false);
         setSuccess(true);
-        
-        // Wait 1.5 seconds on success screen, then redirect
         setTimeout(() => {
           navigation.navigate('MainTabs', { screen: 'TicketsTab' });
         }, 1500);
-        
       } catch (error) {
         setProcessing(false);
-        Alert.alert("Payment Failed", error.message);
+        Alert.alert('Payment Failed', error.message);
       }
     }, 2000);
   };
@@ -62,6 +71,7 @@ export default function CheckoutScreen() {
   }
 
   return (
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn} disabled={processing}>
@@ -71,7 +81,8 @@ export default function CheckoutScreen() {
         <View style={{ width: 24 }} />
       </View>
 
-      <View style={styles.content}>
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Summary Card */}
         <View style={styles.summaryCard}>
           <Text style={styles.summaryLabel}>Paying for</Text>
           <Text style={styles.summaryTitle}>{eventTitle}</Text>
@@ -84,46 +95,51 @@ export default function CheckoutScreen() {
 
         <Text style={styles.sectionTitle}>Select Payment Method</Text>
 
-        <TouchableOpacity 
-          style={[styles.methodCard, method === 'chapa' && styles.methodActive]}
-          onPress={() => setMethod('chapa')}
-          disabled={processing}
-        >
-          <View style={styles.methodLeft}>
-            <View style={[styles.radio, method === 'chapa' && styles.radioActive]}>
-              {method === 'chapa' && <View style={styles.radioInner} />}
-            </View>
-            <Text style={styles.methodText}>Chapa</Text>
-          </View>
-          <Ionicons name="card" size={24} color={colors.primaryLight} />
-        </TouchableOpacity>
+        {/* Payment Methods Grid */}
+        <View style={styles.methodsGrid}>
+          {PAYMENT_METHODS.map(m => (
+            <TouchableOpacity
+              key={m.id}
+              style={[styles.methodCard, method === m.id && styles.methodActive]}
+              onPress={() => { setMethod(m.id); setReference(''); }}
+              disabled={processing}
+            >
+              <Text style={styles.methodIcon}>{m.icon}</Text>
+              <Text style={[styles.methodText, method === m.id && styles.methodTextActive]}>{m.label}</Text>
+              <Text style={styles.methodUssd}>{m.ussd}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-        <TouchableOpacity 
-          style={[styles.methodCard, method === 'telebirr' && styles.methodActive]}
-          onPress={() => setMethod('telebirr')}
-          disabled={processing}
-        >
-          <View style={styles.methodLeft}>
-            <View style={[styles.radio, method === 'telebirr' && styles.radioActive]}>
-              {method === 'telebirr' && <View style={styles.radioInner} />}
-            </View>
-            <Text style={styles.methodText}>Telebirr</Text>
-          </View>
-          <Ionicons name="phone-portrait" size={24} color={colors.primaryLight} />
-        </TouchableOpacity>
+        {/* Reference Input */}
+        <View style={styles.refSection}>
+          <Text style={styles.sectionTitle}>Payment Reference</Text>
+          <TextInput
+            style={styles.refInput}
+            placeholder="Enter reference / transaction ID"
+            placeholderTextColor={colors.textMuted}
+            value={reference}
+            onChangeText={setReference}
+            editable={!processing}
+          />
+          {selectedMethod && (
+            <Text style={styles.refHint}>💡 {selectedMethod.hint}</Text>
+          )}
+        </View>
 
-      </View>
+        <View style={{ height: 120 }} />
+      </ScrollView>
 
+      {/* Bottom Pay Button */}
       <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, spacing.lg) }]}>
-        <TouchableOpacity 
-          style={[styles.payBtn, processing && styles.payBtnDisabled]} 
+        <TouchableOpacity
+          style={[styles.payBtn, (processing || !reference.trim()) && styles.payBtnDisabled]}
           onPress={handlePayment}
-          disabled={processing}
+          disabled={processing || !reference.trim()}
           activeOpacity={0.8}
         >
           <LinearGradient
             colors={colors.gradientPrimary}
-            style={StyleSheet.absoluteFillObject}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
             style={{ borderRadius: radius.full, ...StyleSheet.absoluteFillObject }}
@@ -135,12 +151,13 @@ export default function CheckoutScreen() {
           ) : (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, zIndex: 1 }}>
               <Ionicons name="lock-closed" size={18} color="white" />
-              <Text style={styles.payBtnText}>Pay ETB {price}</Text>
+              <Text style={styles.payBtnText}>Confirm & Pay ETB {price}</Text>
             </View>
           )}
         </TouchableOpacity>
       </View>
     </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -208,48 +225,60 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     marginBottom: spacing.md,
   },
-  methodCard: {
+  methodsGrid: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+    marginBottom: spacing.xl,
+  },
+  methodCard: {
+    width: '47%',
     alignItems: 'center',
-    justifyContent: 'space-between',
     backgroundColor: colors.bgSurface,
-    padding: spacing.lg,
+    padding: spacing.md,
     borderRadius: radius.lg,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.border,
-    marginBottom: spacing.md,
   },
   methodActive: {
     borderColor: colors.primary,
-    backgroundColor: 'rgba(99,102,241,0.05)',
+    backgroundColor: 'rgba(99,102,241,0.08)',
   },
-  methodLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  radio: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: colors.textMuted,
-    marginRight: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  radioActive: {
-    borderColor: colors.primary,
-  },
-  radioInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: colors.primary,
+  methodIcon: {
+    fontSize: 28,
+    marginBottom: 6,
   },
   methodText: {
-    ...typography.body,
-    fontWeight: '600',
+    ...typography.bodySmall,
+    fontWeight: '700',
     color: colors.textPrimary,
+  },
+  methodTextActive: {
+    color: colors.primaryLight,
+  },
+  methodUssd: {
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  refSection: {
+    marginBottom: spacing.lg,
+  },
+  refInput: {
+    backgroundColor: colors.bgSurface,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    color: colors.textPrimary,
+    fontSize: 15,
+    marginBottom: spacing.sm,
+  },
+  refHint: {
+    fontSize: 12,
+    color: colors.textMuted,
+    lineHeight: 18,
+    fontStyle: 'italic',
   },
   bottomBar: {
     position: 'absolute',
